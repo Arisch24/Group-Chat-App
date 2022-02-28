@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Table</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/group.css">
+    <link rel="shortcut icon" href="image/youth.png">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="image/youth.png" alt="Group Chat" class="header-icon">
+        </a>
+        <h1 class="title">Group Chat</h1>
+    </header>
+
+    <!-- Main section -->
+    <main>
+        <h1 class="group-title">
+            Groups Available
+        </h1>
+        <hr class="line">
+        <button class="create-group-btn" disabled>Create public group</button>
+        <button class="create-private-group-btn" disabled>Create private group</button>
+        <button class="enter-group-btn" disabled>Enter group link</button>
+        <button class="back-btn">Go back</button>
+        <!-- Form for public room creation -->
+        <div class="form-container">
+            <h2>Public Group Details</h2>
+            <p class="public-group-error"></p>
+            <form autocomplete="off">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Public group name">
+                <label for="description">Description:</label>
+                <input type="text" id="description" placeholder="Public group description">
+                <button class="submit-btn" type="submit">Submit</button>
+            </form>
+        </div>
+        <!-- Form for private room creation -->
+        <div class="private-form-container">
+            <h2>Private Group Details</h2>
+            <p class="private-group-error"></p>
+            <form autocomplete="off">
+                <label for="privateName">Name:</label>
+                <input type="text" id="privateName" placeholder="Private group name">
+                <label for="privateDescription">Description:</label>
+                <input type="text" id="privateDescription" placeholder="Private group description">
+                <button class="private-group-submit-btn" type="submit">Submit</button>
+            </form>
+        </div>
+        <!-- Form to enter private room with the link -->
+        <div class="enter-group-link-container">
+            <p class="link-error"></p>
+            <form autocomplete="off">
+                <label for="groupLinkInput">Group link: </label>
+                <input type="text" id="groupLinkInput" placeholder="Enter a link">
+                <button class="enter-group-link-btn" type="submit">Join</button>
+            </form>
+        </div>
+        <table class="group-table">
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th colspan="2">Group Description</th>
+                    <th>Join</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="4">No game</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <!-- JS -->
+    <script src="js/jquery.slim.js"></script>
+    <script src="js/signalr.js"></script>
+    <script>
+        // get name from sessionStorage
+        const name = sessionStorage.getItem('name');
+        if(!name){
+            location = '/';
+            throw 'ERROR: Invalid name';
+        }
+
+        // =====================================
+        // Event Handling
+        // =====================================
+        // back button to index.html
+        $('.back-btn').click(() => {
+            sessionStorage.removeItem('name');
+            location = 'index.html';
+        });
+
+        // create public room button
+        $('.create-group-btn').click(e => {
+            e.preventDefault();
+            $('.form-container').toggle('active');
+            $('#name').focus();
+        });
+
+        // create private room button
+        $('.create-private-group-btn').click(e => {
+            e.preventDefault();
+            $('.private-form-container').toggle('active');
+            $('#privateName').focus();
+        });
+
+        $('.enter-group-btn').click(e => {
+            e.preventDefault();
+            $('.enter-group-link-container').toggle('active');
+            $('#groupLinkInput').focus();
+        })
+
+        // data-join button for public rooms
+        $('tbody').on('click', '[data-join]', e => {
+            let groupId = $(e.target).data('join');
+            location = `chat.html?groupId=${groupId}`;
+        });
+
+        // public group creation
+        $('.submit-btn').click(async e => {
+            e.preventDefault();
+            let name = $('#name').val().trim();
+            let description = $('#description').val().trim();
+            if(name && description){
+                let groupId = await con.invoke('CreateGroup', name, description, "public");
+                location = `chat.html?groupId=${groupId}`;
+            }else{
+                $('.public-group-error').text('Name and description must be filled!');
+                $('#name').val('').focus();
+            }
+        });
+
+        // private group creation
+        $('.private-group-submit-btn').click(async e => {
+            e.preventDefault();
+            let name = $('#privateName').val().trim();
+            let description = $('#privateDescription').val().trim();
+            if(name && description){
+                let groupId = await con.invoke('CreateGroup', name, description, "private");
+                location = `chat.html?groupId=${groupId}`;
+            }else{
+                $('.private-group-error').text('Name and description must be filled!');
+                $('#name').val('').focus();
+            }
+        });
+
+        // group link verification
+        $('.enter-group-link-btn').click(async e => {
+            e.preventDefault();
+            let link = $('#groupLinkInput').val().trim();
+            try{
+                let privateGroupId = new URL(link).searchParams.get('groupId');
+                let groupId = await con.invoke('JoinPrivateRoom', privateGroupId);
+                if(groupId){
+                    location = `chat.html?groupId=${groupId}`;
+                }else if(groupId == null){
+                    $('.link-error').text('This group either does not exist or is full!');
+                    $('#groupLinkInput').val('').focus();
+                }
+            }catch(err){
+                $('.link-error').text('This link is invalid!');
+                $('#groupLinkInput').val('').focus();
+            }
+        });
+
+        // =====================================
+        // Connection to signalR
+        // =====================================
+        const param = $.param({ page: 'group' });
+        const con = new signalR.HubConnectionBuilder()
+                    .withUrl('/hub?' + param)
+                    .build();
+
+        con.onclose(err => {
+            alert('Disconnected');
+            setTimeout(() => {
+                sessionStorage.removeItem('name');
+                location = 'index.html';
+            }, 1000);
+        });
+
+        // Update Table data with list from server
+        con.on('UpdateList', (groupList) => {
+            let tableData = '<tr><td colspan="4">No groups</td></tr>';
+            for(let group of groupList){
+                // if it is a public group display it
+                if(group.groupType == "public"){
+                    tableData = '';
+                    tableData += `
+                    <tr>
+                        <td>${group.name}</td>
+                        <td colspan="2">${group.description}</td>
+                        <td>
+                            <button data-join="${group.id}" class="join-group-btn">Join Group</button>
+                        </td>
+                    </tr>
+                    `;
+                }
+                // if private group don't display it
+                else{
+                    // do nothing
+                }
+            }
+            $('tbody').html(tableData);
+        });
+
+        con.start().then(main);
+
+        function main(){
+            $('.create-group-btn').prop('disabled', false);
+            $('.create-private-group-btn').prop('disabled', false);
+            $('.enter-group-btn').prop('disabled', false);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+/* Main container */
+main{
+    margin-top: 100px;
+    padding: .25rem 2rem;
+}
+
+.group-title{
+    font-size: 1.75rem;
+}
+
+.line{
+    border: 1px solid #999;
+    margin: 1.25rem auto;
+}
+
+/* Buttons that are displayed */
+.create-group-btn,
+.create-private-group-btn,
+.enter-group-btn,
+.back-btn{
+    margin-bottom: 1.25rem;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    border: 2px solid rgba(84, 85, 85, 0.89);
+    color:rgba(84, 85, 85, 0.89);
+    background-color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 150ms ease;
+}
+
+.create-group-btn:hover,
+.create-private-group-btn:hover,
+.enter-group-btn:hover,
+.back-btn:hover{
+    background-color: rgba(143, 143, 143, 0.89);
+    color: #fff;
+}
+
+/* Group name and description form */
+form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: .25rem;
+}
+
+label,
+input{
+    margin: 0 auto;
+    width: 50%;
+    padding: .25rem;
+    font-size: 1.125rem;
+}
+
+.form-container,
+.private-form-container,
+.enter-group-link-container{
+    display: none;
+    width: 50%;
+    margin: 2rem auto;
+    padding: .5rem;
+    background: rgba(247, 253, 162, 0.76);
+    backdrop-filter: blur(4.3px);
+    box-shadow: none;
+    transition: box-shadow 150ms ease-in-out;
+    border: 1px solid black;
+}
+
+.form-container:hover,
+.private-form-container:hover,
+.enter-group-link-container:hover{
+    box-shadow: -12px 12px 0px 1px rgb(255, 130, 28);;
+    transition: box-shadow 150ms ease-in-out;
+}
+
+.form-container:focus-within,
+.private-form-container:focus-within,
+.enter-group-link-container:focus-within{
+    box-shadow: -12px 12px 0px 1px rgb(255, 130, 28);;
+    transition: box-shadow 150ms ease-in-out;
+}
+
+.form-container.active,
+.private-form-container.active
+.enter-group-link-container.active{
+    display: block;
+}
+
+/* form titles */
+h2{
+    text-align: center;
+    margin-top: .25rem;
+    color:#FC4F4F;
+}
+
+label[for="groupLinkInput"]{
+    color:rgba(253, 174, 26, 0.8);
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.public-group-error,
+.private-group-error,
+.link-error{
+    text-align: center;
+    color: red;
+}
+
+/* buttons that are on the form but not displayed */
+#name:focus,
+#description:focus,
+#privateName:focus,
+#privateDescription:focus,
+#groupLinkInput:focus
+{
+    outline: none;
+}
+
+.submit-btn,
+.private-group-submit-btn,
+.enter-group-link-btn{
+    padding: .25rem;
+    font-size: 1.125rem;
+    cursor: pointer;
+    background-color: #fff;
+    color:rgba(251, 49, 49, 0.8);
+    border: 2px solid rgba(251, 49, 49, 0.8);
+    border-radius: 5px;
+    transition: 150ms background-color ease;
+}
+
+.submit-btn:hover,
+.private-group-submit-btn:hover,
+.enter-group-link-btn:hover{
+    background-color: rgba(251, 49, 49, 0.8);
+    color:#fff;
+    border: 2px solid rgba(251, 49, 49, 0.8);
+}
+
+.group-table{
+    width: 75%;
+    margin: 2rem auto;
+}
+
+.group-table, 
+tr,
+th, 
+td{
+    border: 1px solid #000;
+    border-collapse: collapse;
+    font-size: 1.125rem;
+}
+
+th,
+td{
+    padding: .5rem;
+    text-align: center;
+}
+
+.join-group-btn{
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px solid skyblue;
+    font-size: 1.125rem;
+    cursor: pointer;
+    color: skyblue;
+    background-color: #fff;
+    transition: 150ms all ease;
+}
+
+.join-group-btn:hover{
+    background-color: skyblue;
+    color: #fff;
+}
