@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatting</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="shortcut icon" href="image/youth.png">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="image/youth.png" alt="Group Chat" class="header-icon">
+        </a>
+        <div class="details-menu">
+            <h1 class="title" id="groupChat" title="View group info">Group Chat</h1>
+            <div class="group-details">
+                <h3>Group Details</h3>
+                <hr class="line">
+                <h4 class="group-name"></h4>
+                <h4 class="group-description"></h4>
+                <div class="link-container">
+                    <p class="group-link"></p>
+                    <button type="button" class="copy-btn">
+                        <img src="image/copy.png" alt="Copy to clipboard">
+                    </button>
+                </div>
+                <small class="success"></small>
+            </div>
+        </div>
+        <div class="details-menu">
+            <h1 class="title" id="userCount" title="View user info">🧑‍🤝‍🧑= <b id="count">0</b></h1>
+            <!-- A hoverable div -->
+            <div class="user-details">
+                <h3>List of Users</h3>
+                <hr class="line">
+                <ol class="usernames">
+                </ol>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main section -->
+    <main class="container" id="main">
+        <ul id="chat">
+        </ul>
+    </main>
+
+    <!-- Footer section -->
+    <footer>
+        <form autocomplete="off">
+            <button type="button" id="bold" class="bold-btn" title="Bold"><b>B</b></button>
+            <button type="button" id="italic" title="Italicize"><i>I</i></button>
+            <button type="button" id="underline" title="Underline"><u>U</u></button>
+            <label for="inputMsg">
+                <input type="text" id="inputMsg" placeholder="Enter message..." disabled>
+            </label>
+            <select id="icon" title="Send Emoji">
+                <option>😀</option>
+                <option>😁</option>
+                <option>😂</option>
+                <option>🤣</option>
+                <option>😃</option>
+                <option>😄</option>
+                <option>😅</option>
+                <option>😆</option>
+                <option>😉</option>
+                <option>😊</option>
+                <option>😋</option>
+                <option>😎</option>
+                <option>😍</option>
+                <option>😘</option>
+                <option>🥰</option>
+                <option>😗</option>
+                <option>😥</option>
+                <option>😮</option>
+            </select>
+            <button type="button" id="chooseFile" title="Send file">🔗</button>
+            <input type="file" id="file" hidden>
+            <button type="button" id="leave" title="Leave Group">&#8594;🚪</button>
+        </form>
+    </footer>
+
+    <!-- JS -->
+    <script src="js/jquery.slim.js"></script>
+    <script src="js/signalr.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // get name from sessionStorage
+        const name = sessionStorage.getItem('name');
+        if(!name){
+            location = '/';
+            throw 'ERROR: Invalid name';
+        }
+
+        // get groupId from URL params
+        const groupId = new URL(location).searchParams.get('groupId');
+        if(!groupId){
+            location = 'group.html';
+            throw 'ERROR: Invalid group id';
+        }
+
+        // =====================================
+        // Event Handling
+        // =====================================
+        // leave function
+        $('#leave').click(() => {
+            location = 'group.html';
+        });
+
+        // image fullscreen
+        $('#chat').on('click', '.image', e => {
+            e.target.requestFullscreen();
+        });
+        
+        // choose file button selects hidden file input
+        $('#chooseFile').click(e => $('#file').click());
+
+        // get file and crop 
+        $('#file').change(e => {
+            let file = e.target.files[0];
+
+            if(file && file.type.startsWith('image/')){
+                fit(file, 500, 500, 'dataURL', 'image/webp').then(image => con.invoke('SendImage', name, image));
+            }
+            e.target.value = null;
+        });
+
+        // drag and drop css
+        $('main').on('dragenter dragover', e => {
+            // prevent browser from opening picture
+            e.preventDefault();
+            $('main').addClass('active');
+        });
+
+        // drag and leave
+        $('main').on('dragleave drop', e => {
+            // prevent browser from opening picture
+            e.preventDefault();
+            $('main').removeClass('active');
+        });
+
+        // once file is dropped
+        $('main').on('drop', e => {
+            e.preventDefault();
+            let file = e.originalEvent.dataTransfer.files[0];
+
+            if(file && file.type.startsWith('image/')){
+                fit(file, 500, 500, 'dataURL', 'image/webp').then(image => con.invoke('SendImage', name, image));
+            }
+        });
+
+        // view user list on click
+        $('#userCount').click(() => {
+            $('.user-details').toggle('active');
+        });
+
+        // view group details on click
+        $('#groupChat').click(() => {
+            $('.group-details').toggle('active');
+        });
+
+        // copy button
+        $('.copy-btn').click(() => {
+            let link = $('.group-link').text().trim();
+            navigator.clipboard.writeText(link).then(() => {
+                $('small.success').text('Copied!');
+                setTimeout(() => {
+                    $('small.success').text('');
+                }, 2000);
+            })
+            .catch(err => {
+                $('small.success').text('Error ' + err);
+            })
+        });
+
+        $('#icon').change(() => {
+            let icon = $('#icon').val();
+            $('#inputMsg').val($('#inputMsg').val() + icon);
+            $('#inputMsg').focus();
+        });
+
+        $('#bold').click(() => {
+            $('#inputMsg').toggleClass('bold');
+            $('#bold').toggleClass('active');
+            $('#inputMsg').focus();
+        });
+        $('#italic').click(() => {
+            $('#inputMsg').toggleClass('italic');
+            $('#italic').toggleClass('active');
+            $('#inputMsg').focus();
+        });
+        $('#underline').click(() => {
+            $('#inputMsg').toggleClass('underline');
+            $('#underline').toggleClass('active');
+            $('#inputMsg').focus();
+        });
+
+        // =====================================
+        // Additional Functions
+        // =====================================
+        const m = $('#main')[0];
+        let bottom = true;
+
+        function isBottom(){
+            bottom = m.scrollTop + m.clientHeight + 30 >= m.scrollHeight;
+        }
+
+        function scrollToBottom(){
+            if(bottom){
+                m.scrollTop = m.scrollHeight;
+            }
+        }
+
+        // get time
+        function getTime(){
+            var time = new Date();
+            let currentTime = time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+            return currentTime;
+        }
+
+        // get image URL
+        function getImage(msg){
+            let regex = /.(jpg|jpeg|png|webp|gif|bmp)$/i;
+            try{
+                let url = new URL(msg);
+                if(regex.test(url.pathname)){
+                    return url.href;
+                }
+            }catch{
+                // do nothing
+            }
+            return null;
+        }
+
+        // get youtube url
+        function getYouTubeId(msg){
+            try{
+                let url = new URL(msg);
+                if(url.hostname == 'www.youtube.com' && url.pathname == '/watch'){
+                    return url.searchParams.get('v');
+                }
+            }catch{
+                // do nothing
+            }
+            return null;
+        }
+
+        function getDecoration(msg){
+            let text = $('#inputMsg');
+            let check = $('#inputMsg').attr('class');
+            if(check){
+                return check;
+            }
+            return null;
+        }
+        
+        // =====================================
+        // SignalR receive functions
+        // =====================================
+        function ReceiveText(name, msg, who){
+            msg = msg.replaceAll(':)', '😊')
+                        .replaceAll(':(', '😭')
+                        .replaceAll('<3', '❤️');
+            msg = $('<p>').text(msg).html();
+            
+            // text to hyperlink transform
+            msg = msg.replace(/(?<=^|\s)(https?:\/\/\S+)(?=$|\s)/gi, '<a target="_blank" href="$&" class="hyperlink">$&</a>');
+
+            isBottom();
+            // append message
+            $('#chat').append(`
+                <li class="${who}">
+                    <div>
+                        <b class="${who}">${name}</b>
+                        </br>
+                        <p>${msg}</p>
+                        <small class="time">${getTime()}</small>
+                    </div>
+                </li>
+            `);
+            scrollToBottom();
+        }
+
+        function UpdateStatus(status, info, count){
+            isBottom();
+            $('#chat').append(`
+                <li class="status">
+                    <div class="${info}">${status}</div>
+                </li>
+            `);
+            // update user count and user list
+            $('#count').text(count);
+            
+            scrollToBottom();
+        }
+
+        function ReceiveUsers(username, status){
+            if(status == "caller"){
+                for(let user of username){
+                    if(user == name){
+                    $('ol.usernames').append(`
+                    <li class="caller">
+                        ${user} (you)
+                    </li>
+                `);
+                    }else{
+                        $('ol.usernames').append(`
+                        <li>
+                            ${user}
+                        </li>
+                    `);
+                    }
+                }
+            }else if(status == "others"){
+                $('ol.usernames').append(`
+                    <li class="${status}">
+                        ${username}
+                    </li>
+                `);
+            }else if(status == "remove"){
+                $('ol.usernames').children().remove();
+                for(let user of username){
+                    if(user == name){
+                    $('ol.usernames').append(`
+                    <li class="caller">
+                        ${user} (you)
+                    </li>
+                `);
+                    }else{
+                        $('ol.usernames').append(`
+                        <li>
+                            ${user}
+                        </li>
+                    `);
+                    }
+                }
+            }
+        }
+
+        function ReceiveImage(name, image, who){
+            isBottom();
+            $('#chat').append(`
+                <li class="${who}">
+                    <div>
+                        <b>${name}</b> sent an image
+                        </br>
+                        <img src="${image}" class="image" onload="scrollToBottom()" style="max-height: 400px">
+                        </br>
+                        <small class="time">${getTime()}</small>
+                    </div>
+                </li>
+            `);
+            scrollToBottom();
+        }
+
+        function ReceiveYouTube(name, youtube, who){
+            isBottom();
+            $('#chat').append(`
+                <li class="${who}">
+                    <div>
+                        <b>${name}</b> sent a video
+                        </br>
+                        <iframe width="400" height="300" src="https://www.youtube.com/embed/${youtube}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </br>
+                        <small class="time">${getTime()}</small>
+                    </div>
+                </li>
+            `);
+            scrollToBottom();
+        }
+
+        function ReceiveDecoration(name, msg, decoration, who){
+            /* 
+            - convert decoration to array and loop 
+            over it
+            - if decoration is true for if statements 
+            then append the html tags to the msg
+            */
+            let arr = [...decoration.split(' ')];
+            for(let i = 0; i < arr.length; i++){
+                if(arr[i] == 'bold'){
+                    msg = '<b>' + msg + '</b>';
+                }else if(arr[i] == 'italic'){
+                    msg = '<i>' + msg + '</i>';
+                }else if(arr[i] == 'underline'){
+                    msg = '<u>' + msg + '</u>';
+                }
+            }
+            isBottom();
+            // append message
+            $('#chat').append(`
+                <li class="${who}">
+                    <div>
+                        <b class="${who}">${name}</b>
+                        </br>
+                        <p>${msg}</p>
+                        <small class="time">${getTime()}</small>
+                    </div>
+                </li>
+            `);
+            scrollToBottom();
+        }
+
+        // sleep function
+        function sleep(ms){
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // =====================================
+        // Connection to signalR
+        // =====================================
+        const param = $.param({ page: 'chat', groupId, name });
+        const con = new signalR.HubConnectionBuilder()
+                    .withUrl('/hub?' + param)
+                    .build();
+
+        con.onclose(err => {
+            alert('Disconnected' + err);
+            setTimeout(() => {
+                location = 'group.html';
+            }, 2000);
+        });
+
+        con.start().then(main);
+
+        // =====================================
+        // Receiving from ChatHub functions
+        // =====================================
+        
+        con.on('Reject', () => {
+            alert('You are rejected!');
+            setTimeout(() => {
+                location = 'group.html';
+            },2000);
+        });
+        
+        
+        con.on('ShowGroup', group => {
+            $('.group-name').text(`Name: ${group.name}`);
+            $('.group-description').text(`Description: ${group.description}`);
+            // give link for user to copy
+            $('.group-link').text(`${window.location.href}`);
+        });
+        
+        // receive text
+        con.on('ReceiveText', ReceiveText);
+        // receive status update
+        con.on('UpdateStatus', UpdateStatus);
+        // receive users list
+        con.on('ReceiveUsers', ReceiveUsers);
+        // receive image
+        con.on('ReceiveImage', ReceiveImage);
+        // receive youtube
+        con.on('ReceiveYouTube', ReceiveYouTube);
+        //receive decoration
+        con.on('ReceiveDecoration', ReceiveDecoration);
+        // receive chat history
+        con.on('ReceiveChatHistory', async histories => {
+            for(let history of histories){
+                await window[history.messageType](...history.param);
+                await sleep(10);
+            }
+        });
+
+        // =====================================
+        // Server successfully loads
+        // =====================================
+        function main(){
+            // message input is enabled
+            $('#inputMsg').prop('disabled', false);
+
+            $('form').submit(e => {
+                e.preventDefault();
+                let msg = $('#inputMsg').val().trim();
+                if(msg){
+                    // to check whether image or youtube
+                    let image = getImage(msg);
+                    let youtube = getYouTubeId(msg);
+                    let decoration = getDecoration();
+
+                    if(image){
+                        // Send image
+                        con.invoke('SendImage', name, image);
+                    }
+                    else if(youtube){
+                        // Send youtube
+                        con.invoke('SendYouTube', name, youtube);
+                    }
+                    else if(decoration){
+                        // Send decorated text
+                        con.invoke('SendDecoration', name, msg, decoration);
+                    }
+                    else{
+                        // Send text
+                        con.invoke('SendText', name, msg);
+                    }
+                }
+                $('#inputMsg').val('').focus();
+            });
+        }
+    </script>
+</body>
+</html>

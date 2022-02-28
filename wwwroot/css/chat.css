@@ -1,0 +1,257 @@
+.details-menu{
+    position: relative;
+}
+
+.details-menu h3{
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.details-menu .group-name,
+.details-menu .group-description{
+    font-size: 1.125rem;
+    font-weight: bold;
+}
+
+#userCount,
+#groupChat{
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Hoverable div */
+.user-details,
+.group-details{
+    display: none;
+    position: absolute;
+    overflow: auto;
+    top: calc(100% + .5rem);
+    right: 0;
+    min-width: 250px;
+    min-height: 200px;
+    background-color: var(--white);
+    color: #000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+    border-radius: .25rem;
+    padding: .5rem;
+    word-wrap: break-word;
+}
+
+
+.user-details.active,
+.group-details.active{
+    display: block;
+}
+
+hr.line{
+    margin-bottom: .25rem;
+}
+
+.link-container{
+    padding: .5rem;
+    border-radius: 5px;
+    background-color: #2d333b;
+    color: #adbac7;
+    position: relative;
+}
+
+.copy-btn{
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    outline: none;
+}
+
+.copy-btn img{
+    width: inherit;
+    height: inherit;
+}
+
+small.success{
+    color: lightgreen;
+}
+
+/* Ordered list */
+.usernames{
+    margin-left: .75rem;
+}
+
+.usernames li.caller{
+    color: blueviolet;
+}
+
+/* Main section */
+main.container{
+    margin-top: 90px;
+    padding: 1rem;
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+main.container.active{
+    outline: 5px dashed red;
+    outline-offset: -5px;
+}
+
+/* Separating sender, caller and status messages */
+ul{
+    list-style: none;
+}
+
+#chat li div{
+    display: inline-block;
+    max-width: 55vw;
+    padding: .5rem;
+    word-break: break-all;
+    margin-bottom: var(--space-below-msg);
+    border-radius: 10px;
+}
+
+#chat li.status{
+    text-align: center;
+}
+
+#chat li.status div{
+    padding: .25rem;
+    max-width: 25vw;
+    margin: 0 auto var(--space-below-msg) auto;
+}
+
+#chat li.status div.joined{
+    background-color: var(--status-bg-joined);
+}
+
+#chat li.status div.left{
+    background-color: var(--status-bg-left);
+}
+
+#chat li.others{
+    text-align: left;
+}
+
+#chat li.others div{
+    background-color: var(--others-bg);
+    color: var(--white);
+}
+
+#chat li.caller{
+    text-align: right;
+}
+
+#chat li.caller div{
+    background-color: var(--sender-bg);
+    color: var(--white);
+}
+
+b.caller{
+    color: #aaff00;
+}
+
+b.others{
+    color: lightskyblue;
+}
+
+a.hyperlink{
+    color: #5757ff;
+}
+
+a.hyperlink:hover{
+    color: #0000ff;
+}
+
+a.hyperlink::before{
+    content: '🔗';
+    display: inline-block;
+}
+
+small.time{
+    font-size: .75rem;
+    opacity: 0.7;
+}
+
+img.image{
+    max-width: 50vw;
+    max-height: 500px;
+    border: 1px solid #999;
+    cursor: pointer;
+}
+
+image.image:fullscreen{
+    object-fit: scale-down;
+}
+
+/* Footer */
+footer{
+    height: 8vh;
+    padding: 1.5rem;
+    background-color: lightgray;
+    display: flex;
+    align-items: center;
+}
+
+/* All input and button styles */
+form{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+}
+
+/* for a button with class active */
+button.active{
+    background: linear-gradient(
+            180deg, rgba(22,20,46,1) 0%,
+            rgba(99,99,250,1) 50%, 
+            rgba(0,212,255,1) 100%
+        );
+    color: #fff;
+}
+
+/* whenever input has class of either of these */
+.bold{
+    font-weight: bold;
+}
+
+.italic{
+    font-style: italic;
+}
+
+.underline{
+    text-decoration: underline;
+}
+
+#inputMsg{
+    min-width: 50vw;
+    min-height: 4vh;
+    outline: none;
+    font-size: 1.25rem;
+    padding: .5rem;
+    border-radius: 15px;
+    border: none;
+}
+
+/* Styling buttons */
+#bold,
+#italic,
+#underline{
+    min-width: 40px;
+}
+
+button,
+#icon{
+    padding: .25rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    background-color: var(--white);
+}
+
+button:hover,
+#icon:hover{
+    background-color: #eee;
+}

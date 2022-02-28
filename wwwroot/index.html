@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Chat</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="shortcut icon" href="image/youth.png">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html">
+            <img src="image/youth.png" alt="Group Chat" class="header-icon">
+        </a>
+        <h1 class="title">Group Chat</h1>
+    </header>
+
+    <main>
+        <form autocomplete="off">
+            <label for="name">
+                <h2>Enter Name :</h2>
+                <input type="text" id="name" placeholder="Your name" autofocus>
+                <small class="error"></small>
+            </label>
+        </form>
+        <h2 class="haha"></h2>
+    </main>
+
+    <!-- JS -->
+    <script src="js/jquery.slim.js"></script>
+    <script src="js/signalr.js"></script>
+    <script>
+        // get name and store into session storage
+        $('form').submit(e => {
+            e.preventDefault();
+            let name = $('#name').val().trim();
+            if(name){
+                sessionStorage.setItem('name', name);
+                location = 'group.html';
+            }
+            else{
+                $('.error').text('Your name cannot be empty!');
+            }
+            $('#name').val('').focus();
+        });
+    </script>
+</body>
+</html>
