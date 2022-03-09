@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "H21RAvF7TGT8uU35QLqZiP3L0vfo34+5jSmB6XzqFAE=",
+  "Hash": "Sr3Huu/yvOcRnUy+fg9++p1P61urbr84FS4BmliMfSE=",
   "Source": "Assignment1",
   "BasePath": "_content/Assignment1",
   "Mode": "Default",
@@ -151,6 +151,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\image\\external-link.png"
+    },
+    {
+      "Identity": "C:\\Users\\arisc\\OneDrive\\Documents\\VS Code\\EWT\\Assignment1\\wwwroot\\image\\external-link.svg",
+      "SourceId": "Assignment1",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\arisc\\OneDrive\\Documents\\VS Code\\EWT\\Assignment1\\wwwroot\\",
+      "BasePath": "_content/Assignment1",
+      "RelativePath": "image/external-link.svg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\image\\external-link.svg"
     },
     {
       "Identity": "C:\\Users\\arisc\\OneDrive\\Documents\\VS Code\\EWT\\Assignment1\\wwwroot\\image\\youth.png",
