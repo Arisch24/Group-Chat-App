@@ -1,3 +1,4 @@
+# Remove unneccesary files
 bin/
 obj/
-.vscode/
+/.vscode
